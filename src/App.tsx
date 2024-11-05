@@ -1,11 +1,9 @@
 import './App.css'
 
-function App() {
+export default function App() {
     return (
         <>
             <h1>yipee!!</h1>
         </>
     )
 }
-
-export default App
