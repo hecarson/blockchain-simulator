@@ -7,17 +7,17 @@ This project is made with Vite, React, and Tailwind CSS.
 ## Setup
 
 ```
-npm install
+pnpm install
 ```
 
 ## Run development server
 
 ```
-npm run dev
+pnpm run dev
 ```
 
 ## Run file
 
 ```
-npx tsx <file>
+pnpx tsx <file>
 ```
