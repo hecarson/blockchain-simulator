@@ -9,18 +9,20 @@ export class Simulator {
     private nodes: SimulatorNode[] = [];
     private eventQueue: MinPriorityQueue<SimulatorEvent>;
     private curTime = 0;
-    private tagLogger = new TagLogger();
+    private tagLogger: TagLogger;
 
     /**
      * Initializes an empty simulator.
      */
-    constructor() {
+    constructor(logger: ISimulatorLogger) {
         console.log("constructing Simulator");
 
         // Order events by time
         this.eventQueue = new MinPriorityQueue<SimulatorEvent>(
             (e: SimulatorEvent) => e.time
         );
+        
+        this.tagLogger = new TagLogger(logger);
     }
 
     /**
@@ -47,16 +49,6 @@ export class Simulator {
         }
 
         return true;
-    }
-
-    /**
-     * Sets the logger.
-     *
-     * This is useful because a logger in a React component can be defined after
-     * the initialization of the simulator.
-     */
-    setLogger(logger: ISimulatorLogger) {
-        this.tagLogger.logger = logger;
     }
 
 }
@@ -102,8 +94,12 @@ export interface IEventHandler {
  * Intermediate logger that prefixes tags to messages
  */
 class TagLogger implements ISimulatorLogger {
-    logger: ISimulatorLogger | null = null;
+    logger: ISimulatorLogger;
     time: number | null = null;
+
+    constructor(logger: ISimulatorLogger) {
+        this.logger = logger;
+    }
 
     info(m: string): void {
         this.logger!.info(`[INFO] [t=${this.time}] ${m}`);

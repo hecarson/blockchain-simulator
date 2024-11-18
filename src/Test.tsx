@@ -1,24 +1,28 @@
 import { useState } from "react";
 import { Simulator, ISimulatorLogger } from "./simulator";
 
-const simulator = new Simulator();
-
 export default function Test() {
     const [log, setLog] = useState([] as string[]);
     // This is necessary because setLog does not immediately update log; it only requests a rerender
-    const newLogEntries = [] as string[];
-    const logger: ISimulatorLogger = {
-        info(m) {
-            newLogEntries.push(m);
-        },
-        error(m) {
-            newLogEntries.push(m);
-        },
-    };
-    simulator.setLogger(logger);
+    const [newLog] = useState([] as string[]);
+    function getLogger(newLog: string[]): ISimulatorLogger {
+        return {
+            info(m) {
+                newLog.push(m);
+            },
+            error(m) {
+                newLog.push(m);
+            },
+        };
+    }
+    const [simulator] = useState(
+        // Use arrow function to avoid constructing redundant Simulators on each render
+        () => new Simulator(getLogger(newLog))
+    );
 
     function updateLog() {
-        setLog([...log, ...newLogEntries]);
+        setLog([...log, ...newLog]);
+        newLog.length = 0; // Clear array
     }
 
     function clearLog() {
@@ -28,15 +32,15 @@ export default function Test() {
     return (
         <div className="flex flex-col gap-4 items-center">
             <h1 className="mb-4">Test page</h1>
-            <Controls updateLog={updateLog} clearLog={clearLog} />
+            <Controls simulator={simulator} updateLog={updateLog} clearLog={clearLog} />
             <Log log={log} />
         </div>
     );
 }
 
 function Controls(
-    { updateLog, clearLog } :
-    { updateLog: () => void, clearLog: () => void }
+    { simulator, updateLog, clearLog } :
+    { simulator: Simulator, updateLog: () => void, clearLog: () => void }
 ) {
     const [initScript, setInitScript] = useState(
         "logger.info(\"hello from init!\");\n" +
@@ -58,7 +62,7 @@ function Controls(
 
     return (
         <div className="flex flex-col gap-2 items-center w-1/3">
-            <textarea value={initScript} onChange={onInitScriptChange} className="w-full" />
+            <textarea value={initScript} onChange={onInitScriptChange} className="w-full h-40" />
             <div className="flex flex-row gap-4">
                 <button onClick={onInitClick}>init</button>
                 <button onClick={onClearClick}>clear</button>
@@ -70,7 +74,7 @@ function Controls(
 function Log({ log } : { log: string[] }) {
     return (
         <div className="flex flex-col border-2 w-1/3 p-2">
-            { log.map((entry) => <div>{entry}</div>) }
+            { log.map((entry, index) => <div key={index}>{entry}</div>) }
         </div>
     );
 }
