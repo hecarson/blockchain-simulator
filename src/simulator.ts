@@ -6,9 +6,9 @@ import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 
 export class Simulator {
 
-    private nodes: SimulatorNode[] = [];
-    private eventQueue: MinPriorityQueue<SimulatorEvent>;
-    private curTime = 0;
+    nodes: SimulatorNode[] = [];
+    eventQueue: MinPriorityQueue<SimulatorEvent>;
+    curTime = 0;
     private tagLogger: TagLogger;
 
     /**

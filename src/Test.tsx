@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Simulator, ISimulatorLogger } from "./simulator";
 
 export default function Test() {
-    const [log, setLog] = useState([] as string[]);
+    const [log, setLog] = useState<string[]>([]);
     // This is necessary because setLog does not immediately update log; it only requests a rerender
-    const [newLog] = useState([] as string[]);
+    const [newLog] = useState<string[]>([]);
     function getLogger(newLog: string[]): ISimulatorLogger {
         return {
             info(m) {
@@ -47,7 +47,7 @@ function Controls(
         "logger.error(\"error from init!\");"
     );
 
-    function onInitScriptChange(event: any) {
+    function onInitScriptChange(event: ChangeEvent<HTMLInputElement>) {
         setInitScript(event.target.value);
     }
 
