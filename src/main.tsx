@@ -14,8 +14,6 @@ const router = createBrowserRouter(
         // https://reactrouter.com/en/main/upgrading/future
         future: {
             v7_relativeSplatPath: true,
-            // @ts-ignore
-            v7_startTransition: true,
             v7_fetcherPersist: true,
             v7_normalizeFormMethod: true,
             v7_partialHydration: true,

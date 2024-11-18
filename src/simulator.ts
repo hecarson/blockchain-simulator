@@ -9,6 +9,9 @@ export class Simulator {
     eventQueue: MinPriorityQueue<Event>;
     logger: ILogger;
 
+    /**
+     * Initializes an empty simulator.
+     */
     constructor(logger: ILogger) {
         // Order events by time
         this.eventQueue = new MinPriorityQueue<Event>(
@@ -18,7 +21,18 @@ export class Simulator {
         this.logger = logger;
     }
 
+    /**
+     * Clears the simulator and runs the init script to initialize a new simulator.
+     * Returns whether the init script ran successfully.
+     *
+     * An init script is given two parameters:
+     * * simulator: Simulator
+     * * logger: ILogger
+     */
     init(initScript: string): boolean {
+        this.nodes = [];
+        this.eventQueue.clear();
+
         const initFunction = new Function("simulator", "logger", initScript);
         try {
             initFunction(this, this.logger);

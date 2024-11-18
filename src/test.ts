@@ -1,3 +1,6 @@
+// This file is meant to be run locally in node for quick tests independent of react.
+// npx tsx test.ts
+
 //import { Simulator, Node, ILogger } from "./simulator";
 import { Simulator, ILogger } from "./simulator";
 
