@@ -7,5 +7,5 @@ export default function App() {
             <h1>yipee!!</h1>
             <Link to="/test">Test page</Link>
         </div>
-    )
+    );
 }

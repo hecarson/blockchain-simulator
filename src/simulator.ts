@@ -5,20 +5,22 @@ import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 // Public code
 
 export class Simulator {
-    nodes: Node[] = [];
-    eventQueue: MinPriorityQueue<Event>;
-    logger: ILogger;
+
+    nodes: SimulatorNode[] = [];
+    eventQueue: MinPriorityQueue<SimulatorEvent>;
+    logger?: ILogger;
+    curTime = 0;
 
     /**
      * Initializes an empty simulator.
      */
-    constructor(logger: ILogger) {
-        // Order events by time
-        this.eventQueue = new MinPriorityQueue<Event>(
-            (e: Event) => e.time
-        );
+    constructor() {
+        console.log("constructing Simulator");
 
-        this.logger = logger;
+        // Order events by time
+        this.eventQueue = new MinPriorityQueue<SimulatorEvent>(
+            (e: SimulatorEvent) => e.time
+        );
     }
 
     /**
@@ -32,6 +34,7 @@ export class Simulator {
     init(initScript: string): boolean {
         this.nodes = [];
         this.eventQueue.clear();
+        this.curTime = 0;
 
         const initFunction = new Function("simulator", "logger", initScript);
         try {
@@ -44,9 +47,20 @@ export class Simulator {
 
         return true;
     }
+
+    /**
+     * Sets the logger.
+     *
+     * This is useful because a logger in a React component can be defined after
+     * the initialization of the simulator.
+     */
+    setLogger(logger: ILogger) {
+        this.logger = logger;
+    }
+
 }
 
-export class Node {
+export class SimulatorNode {
     id: number;
     peers: number[] = [];
     simulator: Simulator
@@ -56,8 +70,8 @@ export class Node {
     private static nextId = 0;
 
     constructor(simulator: Simulator, handleEvent: IEventHandler) {
-        this.id = Node.nextId;
-        Node.nextId++;
+        this.id = SimulatorNode.nextId;
+        SimulatorNode.nextId++;
         this.simulator = simulator;
         this.handleEvent = handleEvent;
     }
@@ -66,7 +80,7 @@ export class Node {
     }
 }
 
-export type Event = {
+export type SimulatorEvent = {
     time: number;
 }
 
@@ -76,7 +90,7 @@ export interface ILogger {
 }
 
 export interface IEventHandler {
-    (event: Event): void;
+    (event: SimulatorEvent): void;
 }
 
 

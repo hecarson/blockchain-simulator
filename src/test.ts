@@ -15,6 +15,7 @@ const logger: ILogger = {
 
 const initScript = "logger.info(\"hello from init!\"); logger.error(\"error from init!\");";
 
-const sim = new Simulator(logger);
+const sim = new Simulator();
+sim.setLogger(logger);
 const initSuccess = sim.init(initScript);
 console.log(`success: ${initSuccess}`);
