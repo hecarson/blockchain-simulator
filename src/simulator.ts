@@ -6,10 +6,10 @@ import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 
 export class Simulator {
 
-    nodes: SimulatorNode[] = [];
-    eventQueue: MinPriorityQueue<SimulatorEvent>;
-    logger?: ILogger;
-    curTime = 0;
+    private nodes: SimulatorNode[] = [];
+    private eventQueue: MinPriorityQueue<SimulatorEvent>;
+    private curTime = 0;
+    private tagLogger = new TagLogger();
 
     /**
      * Initializes an empty simulator.
@@ -28,7 +28,7 @@ export class Simulator {
      * Returns whether the init script ran successfully.
      *
      * An init script is given two parameters:
-     * * simulator: Simulator
+     * * nodes: Node[]
      * * logger: ILogger
      */
     init(initScript: string): boolean {
@@ -36,9 +36,10 @@ export class Simulator {
         this.eventQueue.clear();
         this.curTime = 0;
 
-        const initFunction = new Function("simulator", "logger", initScript);
+        const initFunction = new Function("nodes", "logger", initScript);
+        this.tagLogger.time = this.curTime;
         try {
-            initFunction(this, this.logger);
+            initFunction(this.nodes, this.tagLogger);
         }
         catch (e) {
             console.log(e);
@@ -54,8 +55,8 @@ export class Simulator {
      * This is useful because a logger in a React component can be defined after
      * the initialization of the simulator.
      */
-    setLogger(logger: ILogger) {
-        this.logger = logger;
+    setLogger(logger: ISimulatorLogger) {
+        this.tagLogger.logger = logger;
     }
 
 }
@@ -84,9 +85,9 @@ export type SimulatorEvent = {
     time: number;
 }
 
-export interface ILogger {
-    info: (m: string) => void;
-    error: (m: string) => void;
+export interface ISimulatorLogger {
+    info(m: string): void;
+    error(m: string): void;
 }
 
 export interface IEventHandler {
@@ -97,4 +98,18 @@ export interface IEventHandler {
 
 // Internal code
 
+/**
+ * Intermediate logger that prefixes tags to messages
+ */
+class TagLogger implements ISimulatorLogger {
+    logger: ISimulatorLogger | null = null;
+    time: number | null = null;
 
+    info(m: string): void {
+        this.logger!.info(`[INFO] [t=${this.time}] ${m}`);
+    }
+
+    error(m: string): void {
+        this.logger!.error(`[ERROR] [t=${this.time}] ${m}`);
+    }
+}

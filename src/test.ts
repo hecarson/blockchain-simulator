@@ -2,14 +2,14 @@
 // pnpx tsx test.ts
 
 //import { Simulator, Node, ILogger } from "./simulator";
-import { Simulator, ILogger } from "./simulator";
+import { Simulator, ISimulatorLogger } from "./simulator";
 
-const logger: ILogger = {
+const logger: ISimulatorLogger = {
     info(m) {
-        console.log(`[INFO] ${m}`);
+        console.log(m);
     },
     error(m) {
-        console.log(`[ERROR] ${m}`);
+        console.log(m);
     },
 };
 

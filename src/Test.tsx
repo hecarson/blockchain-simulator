@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Simulator, ILogger } from "./simulator";
+import { Simulator, ISimulatorLogger } from "./simulator";
 
 const simulator = new Simulator();
 
@@ -7,12 +7,12 @@ export default function Test() {
     const [log, setLog] = useState([] as string[]);
     // This is necessary because setLog does not immediately update log; it only requests a rerender
     const newLogEntries = [] as string[];
-    const logger: ILogger = {
+    const logger: ISimulatorLogger = {
         info(m) {
-            newLogEntries.push(`[INFO] ${m}`);
+            newLogEntries.push(m);
         },
         error(m) {
-            newLogEntries.push(`[ERROR] ${m}`);
+            newLogEntries.push(m);
         },
     };
     simulator.setLogger(logger);
