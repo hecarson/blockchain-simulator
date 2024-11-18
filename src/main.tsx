@@ -1,10 +1,31 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.tsx'
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import App from "./App.tsx"
+import Test from "./Test.tsx"
+import "./index.css"
+
+const router = createBrowserRouter(
+    [
+        { path: "/", element: <App /> },
+        { path: "/test", element: <Test /> },
+    ],
+    {
+        // https://reactrouter.com/en/main/upgrading/future
+        future: {
+            v7_relativeSplatPath: true,
+            // @ts-ignore
+            v7_startTransition: true,
+            v7_fetcherPersist: true,
+            v7_normalizeFormMethod: true,
+            v7_partialHydration: true,
+            v7_skipActionErrorRevalidation: true,
+        }
+    },
+);
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+    <StrictMode>
+        <RouterProvider router={router} />
+    </StrictMode>
 )

@@ -15,3 +15,9 @@ npm install
 ```
 npm run dev
 ```
+
+## Run file
+
+```
+npx tsx <file>
+```
