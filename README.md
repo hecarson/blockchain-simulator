@@ -8,6 +8,7 @@ This project is made with Vite, React, and Tailwind CSS.
 
 ```
 pnpm install
+pnpx tailwindcss
 ```
 
 ## Run development server
