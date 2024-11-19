@@ -7,11 +7,11 @@ export default function App() {
     const { simulator, log, forceRender } = useSimulator();
 
     return (
-        <div className="flex flex-col items-center gap-4 h-full relative">
-            <Link to="/test" className="absolute left-0">(Test page)</Link>
-            <header className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-4 h-full">
+            <header className="flex flex-row justify-start items-center gap-8 w-full">
                 <h1>Blockchain Simulator</h1>
                 <h2>Carson He, Duke Nguyen</h2>
+                <Link to="/test" className="">(Test page)</Link>
             </header>
 
             <div className="flex flex-row w-full h-full justify-center">
@@ -25,8 +25,6 @@ export default function App() {
         </div>
     );
 }
-
-
 
 function Canvas(
     { className, render } :
