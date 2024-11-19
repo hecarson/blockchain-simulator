@@ -51,30 +51,56 @@ export class Simulator {
         return true;
     }
 
+    /**
+     * Creates a new node in the simulator network. This is intended to be called from
+     * an init script and is the recommended way to add a node.
+     */
+    createNewNode(pos: SimulatorNodePosition, name: string, color: string,
+        handleEvent: ISimulatorEventHandler
+    ) {
+        const node = new SimulatorNode(this, name, color, pos, handleEvent);
+        this.nodes.push(node);
+    }
+
 }
 
 export class SimulatorNode {
-    id: number;
-    peers: number[] = [];
-    simulator: Simulator
 
-    handleEvent: IEventHandler;
+    id: number;
+    name: string;
+    color: string;
+    peers: number[] = [];
+    pos: SimulatorNodePosition
+    handleEvent: ISimulatorEventHandler;
+    simulator: Simulator;
 
     private static nextId = 0;
 
-    constructor(simulator: Simulator, handleEvent: IEventHandler) {
+    constructor(simulator: Simulator, name: string, color: string, pos: SimulatorNodePosition,
+        handleEvent: ISimulatorEventHandler)
+    {
         this.id = SimulatorNode.nextId;
         SimulatorNode.nextId++;
-        this.simulator = simulator;
+        this.name = name;
+        this.color = color;
+        this.pos = pos;
         this.handleEvent = handleEvent;
+        this.simulator = simulator;
     }
 
-    sendMessage(): void {
+    createEvent(timeOffset: number, type: string, msg?: object) {
     }
+
+    sendMessage(dst: number, msg: object): void {
+    }
+
 }
 
 export type SimulatorEvent = {
     time: number;
+    target: number;
+    type: string;
+    msg?: object;
 }
 
 export interface ISimulatorLogger {
@@ -82,9 +108,14 @@ export interface ISimulatorLogger {
     error(m: string): void;
 }
 
-export interface IEventHandler {
+export interface ISimulatorEventHandler {
     (event: SimulatorEvent): void;
 }
+
+export type SimulatorNodePosition = {
+    x: number,
+    y: number
+};
 
 
 
