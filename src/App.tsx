@@ -1,27 +1,52 @@
 import { Link } from "react-router-dom"
 import { useEffect, useRef, useState } from "react";
 import { ISimulatorLogger, Simulator } from "./simulator";
-import "./App.css"
+//import "./App.css"
 
 export default function App() {
     const { simulator, log, forceRender } = useSimulator();
 
     return (
-        <div className="flex flex-col items-center gap-4 h-full">
-            <header className="flex flex-row justify-start items-center gap-8 w-full">
-                <h1>Blockchain Simulator</h1>
-                <h2>Carson He, Duke Nguyen</h2>
-                <Link to="/test" className="">(Test page)</Link>
-            </header>
-
-            <div className="flex flex-row w-full h-full justify-center">
-                <Canvas
-                    className="w-1/2 h-full"
-                    render={
-                        (context, width, height) => renderNodes(context, width, height, simulator)
-                    }
-                />
+        <div className="flex flex-col items-center h-full">
+            <Header />
+            <div className="flex flex-col gap-4 grow self-stretch p-4">
+                <Menu />
+                <SimulatorView simulator={simulator} />
             </div>
+        </div>
+    );
+}
+
+function Header() {
+    return (
+        <header className="flex flex-row justify-start items-center gap-8 self-stretch p-4 bg-neutral-700">
+            <h1>Blockchain Simulator</h1>
+            <h2>Carson He, Duke Nguyen</h2>
+            <Link to="/test" className="">(Test page)</Link>
+        </header>
+    );
+}
+
+function Menu() {
+    return (
+        <div className="flex flex-row justify-start items-center gap-4 self-stretch">
+            <button>Init</button>
+        </div>
+    );
+}
+
+function SimulatorView(
+    { simulator } :
+    { simulator: Simulator }
+) {
+    return (
+        <div className="flex flex-row grow self-stretch justify-center">
+            <Canvas
+                className="w-1/2 h-full"
+                render={
+                    (context, width, height) => renderNodes(context, width, height, simulator)
+                }
+            />
         </div>
     );
 }
@@ -57,7 +82,7 @@ function Canvas(
 
 
 
-// Internal code
+// Helper code
 
 enum LogEntryType { Info, Error }
 

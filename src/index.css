@@ -4,7 +4,6 @@
 
 #root {
     margin: 0 auto;
-    padding: 2rem;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -28,11 +27,11 @@
 
 a {
     font-weight: 500;
-    color: #646cff;
+    color: #6080ff;
     text-decoration: inherit;
 }
 a:hover {
-    color: #535bf2;
+    color: #4060ff;
 }
 
 body {
@@ -64,6 +63,7 @@ button:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
 }
 
+/*
 @media (prefers-color-scheme: light) {
     :root {
         color: #213547;
@@ -76,3 +76,4 @@ button:focus-visible {
         background-color: #f9f9f9;
     }
 }
+*/

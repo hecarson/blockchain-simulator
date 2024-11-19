@@ -30,7 +30,7 @@ export default function Test() {
     }
 
     return (
-        <div className="flex flex-col gap-4 items-center">
+        <div className="flex flex-col p-4 gap-4 items-center">
             <h1 className="mb-4">Test page</h1>
             <Controls simulator={simulator} updateLog={updateLog} clearLog={clearLog} />
             <Log log={log} />
@@ -47,7 +47,7 @@ function Controls(
         "logger.error(\"error from init!\");"
     );
 
-    function onInitScriptChange(event: ChangeEvent<HTMLInputElement>) {
+    function onInitScriptChange(event: ChangeEvent<HTMLTextAreaElement>) {
         setInitScript(event.target.value);
     }
 
