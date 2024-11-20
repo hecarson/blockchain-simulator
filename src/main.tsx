@@ -3,12 +3,14 @@ import { createRoot } from "react-dom/client"
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import App from "./App.tsx"
 import Test from "./Test.tsx"
+import Demo from "./Demo.tsx"
 import "./index.css"
 
 const router = createBrowserRouter(
     [
         { path: "/", element: <App /> },
         { path: "/test", element: <Test /> },
+        { path: "/demo", element: <Demo /> },
     ],
     {
         // https://reactrouter.com/en/main/upgrading/future
