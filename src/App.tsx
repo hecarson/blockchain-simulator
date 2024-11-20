@@ -98,7 +98,7 @@ function InitWindow({ setShowInitWindow } : { setShowInitWindow: (status: boolea
 
 
     return (
-        <div className="absolute inset-8 flex bg-neutral-900 relative">
+        <div className="absolute inset-8 flex bg-neutral-900">
             
         </div>
     );
