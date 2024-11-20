@@ -60,7 +60,7 @@ button {
     cursor: pointer;
 }
 button:hover {
-    border-color: #646cff;
+    border-color: #a0a0a0;
 }
 button:focus,
 button:focus-visible {
@@ -69,6 +69,10 @@ button:focus-visible {
 
 button.active, button:active {
     background-color: #a06060;
+}
+
+textarea {
+    background-color: #303038;
 }
 
 /*

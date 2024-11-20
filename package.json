@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@datastructures-js/priority-queue": "^6.3.1",
+    "konva": "^9.3.16",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-konva": "^18.2.10",
     "react-router-dom": "^6.28.0"
   },
   "devDependencies": {

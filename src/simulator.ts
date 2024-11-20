@@ -70,6 +70,9 @@ export class SimulatorNode {
     name: string;
     color: string;
     peers: number[] = [];
+    /**
+     * x and y are fractions from 0 to 1
+     */
     pos: SimulatorNodePosition
     handleEvent: ISimulatorEventHandler;
     simulator: Simulator;

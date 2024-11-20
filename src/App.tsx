@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
-import { ChangeEvent, useEffect, useRef, useState } from "react";
+import { ChangeEvent, PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
 import { ISimulatorLogger, Simulator } from "./simulator";
+import { Circle, Layer, Stage } from "react-konva";
 //import "./App.css"
 
 export default function App() {
@@ -76,9 +77,7 @@ function SimulatorView(
             }
             <Canvas
                 className="w-1/2 h-full"
-                render={
-                    (context, width, height) => renderNodes(context, width, height, simulator)
-                }
+                render={(width, height) => renderNodes(width, height, simulator)}
             />
         </div>
     );
@@ -88,26 +87,40 @@ function Canvas(
     { className, render } :
     { className: string, render: ICanvasRenderer }
 ) {
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [dimensions, setDimensions] = useState<{ width: number, height: number } | null>(null);
 
-    // Do rendering after component mount, when canvas exists in DOM
+    console.log(dimensions);
+
+    // Get dimensions after mount
     useEffect(
         () => {
-            const canvas = canvasRef.current;
-            const context = canvas?.getContext("2d");
-            if (!canvas || !context)
+            const container = containerRef.current;
+            if (!container)
                 return;
-            const { width, height } = canvas.getBoundingClientRect();
-            canvas.width = width;
-            canvas.height = height;
-
-            render(context, width, height);
+            const { width, height } = container.getBoundingClientRect();
+            setDimensions({ width: width, height: height });
         },
         []
     );
 
+    function Container({ children } : PropsWithChildren) {
+        return (
+            <div ref={containerRef} className={className}>
+                { children }
+            </div>
+        );
+    }
+
+    if (!dimensions)
+        return ( <Container /> );
+
     return (
-        <canvas ref={canvasRef} className={className} />
+        <Container>
+            <Stage width={dimensions.width} height={dimensions.height}>
+                { render(dimensions.width, dimensions.height) }
+            </Stage>
+        </Container>
     );
 }
 
@@ -128,12 +141,12 @@ function InitWindow(
     }
 
     return (
-        <div className="absolute inset-8 bg-neutral-900 p-4 flex flex-row gap-4">
-            <textarea value={initScript} onChange={onChangeInitScript} className="grow p-2" />
+        <div className="absolute inset-8 bg-neutral-900 p-4 z-10 flex flex-row gap-4">
+            <textarea value={initScript} onChange={onChangeInitScript} className="grow p-4 resize-none" />
             <div className="flex flex-col gap-2 w-40">
                 <button>Run</button>
             </div>
-            <div onClick={onCloseClick} className="w-fit h-fit text-4xl p-1 leading-none cursor-pointer">&times;</div>
+            <div onClick={onCloseClick} className="w-fit h-fit text-4xl p-1 ml-4 leading-none cursor-pointer">&times;</div>
         </div>
     );
 }
@@ -150,7 +163,7 @@ type LogEntry = {
 };
 
 interface ICanvasRenderer {
-    (context: CanvasRenderingContext2D, width: number, height: number): void
+    (width: number, height: number): ReactNode
 }
 
 /**
@@ -187,14 +200,10 @@ function useSimulator() {
     };
 }
 
-function renderNodes(context: CanvasRenderingContext2D, width: number, height: number,
-    simulator: Simulator
-) {
-    context.fillStyle = "white";
-    context.clearRect(0, 0, width, height);
-
-    context.beginPath();
-    context.arc(width / 2, height / 2, 50, 0, Math.PI * 2);
-    context.fillStyle = "white";
-    context.fill();
+function renderNodes(width: number, height: number, simulator: Simulator) {
+    return (
+        <Layer>
+            <Circle x={width / 2} y={height / 2} fill="white" radius={50} />
+        </Layer>
+    );
 }
