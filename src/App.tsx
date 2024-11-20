@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom"
 import { ChangeEvent, PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
 import { ISimulatorLogger, Simulator } from "./simulator";
+import { initInitScript } from "./init-script";
 import { Circle, Layer, Stage } from "react-konva";
 //import "./App.css"
 
 export default function App() {
     const { simulator, log, forceRender } = useSimulator();
-    const [initScript, setInitScript] = useState("logger.info(\"Hello from init!\");");
+    const [initScript, setInitScript] = useState(initInitScript);
     const [isShowInitWindow, setShowInitWindow] = useState(false);
 
     function runInitScript() {
@@ -217,17 +218,21 @@ function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => v
         forceRender();
     }
 
-    function logEntryToElement(entry: LogEntry) {
+    function logEntryToElement(entry: LogEntry, index: number) {
         const entryClass = "border-b-[1px] px-4";
 
         if (entry.type === LogEntryType.Error) {
             return (
-                <div className={entryClass + " bg-red-900"}>{entry.message} </div>
+                <div key={index} className={entryClass + " bg-red-900"}>
+                    {entry.message}
+                </div>
             );
         }
         else {
             return (
-                <div className={entryClass}>{entry.message}</div>
+                <div key={index} className={entryClass}>
+                    {entry.message}
+                </div>
             );
         }
     }

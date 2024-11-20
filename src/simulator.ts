@@ -38,10 +38,12 @@ export class Simulator {
         this.eventQueue.clear();
         this.curTime = 0;
 
-        const initFunction = new Function("nodes", "logger", initScript);
+        const initFunction = new Function("simulator", "logger", initScript);
         this.tagLogger.time = this.curTime;
+
+
         try {
-            initFunction(this.nodes, this.tagLogger);
+            initFunction(this, this.tagLogger);
         }
         catch (e) {
             console.log(e);
@@ -52,17 +54,18 @@ export class Simulator {
     }
 
     /**
-     * Creates a new node in the simulator network. This is intended to be called from
-     * an init script and is the recommended way to add a node.
+     * Creates a new node in the simulator network.
      */
     createNewNode(pos: SimulatorNodePosition, name: string, color: string,
         handleEvent: ISimulatorEventHandler
     ) {
         const node = new SimulatorNode(this, name, color, pos, handleEvent);
         this.nodes.push(node);
+        return node;
     }
 
 }
+
 
 export class SimulatorNode {
 
@@ -91,10 +94,10 @@ export class SimulatorNode {
         this.simulator = simulator;
     }
 
-    createEvent(_timeOffset: number, _type: string, _msg?: object) {
+    createEvent(timeOffset: number, type: string, msg?: object) {
     }
 
-    sendMessage(_dst: number, _msg: object): void {
+    sendMessage(dst: number, msg: object): void {
     }
 
 }
