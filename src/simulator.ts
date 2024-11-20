@@ -6,7 +6,7 @@ import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 
 export class Simulator {
 
-    nodes: SimulatorNode[] = [];
+    nodes: { [id: number]: SimulatorNode } = {}
     eventQueue: MinPriorityQueue<SimulatorEvent>;
     curTime = 0;
     private tagLogger: TagLogger;
@@ -34,15 +34,13 @@ export class Simulator {
      * * logger: ILogger
      */
     init(initScript: string): boolean {
-        this.nodes = [];
+        this.nodes = {};
         this.eventQueue.clear();
         this.curTime = 0;
-
-        const initFunction = new Function("simulator", "logger", initScript);
         this.tagLogger.time = this.curTime;
 
-
         try {
+            const initFunction = new Function("simulator", "logger", initScript);
             initFunction(this, this.tagLogger);
         }
         catch (e) {
@@ -54,13 +52,13 @@ export class Simulator {
     }
 
     /**
-     * Creates a new node in the simulator network.
+     * Creates a new node in the simulator network. Nodes should only be created with this function.
      */
-    createNewNode(pos: SimulatorNodePosition, name: string, color: string,
+    createNewNode(id: number, name: string, pos: SimulatorNodePosition, color: string, peers: number[],
         handleEvent: ISimulatorEventHandler
     ) {
-        const node = new SimulatorNode(this, name, color, pos, handleEvent);
-        this.nodes.push(node);
+        const node = new SimulatorNode(this, id, name, pos, color, peers, handleEvent);
+        this.nodes[id] = node;
         return node;
     }
 
@@ -71,27 +69,25 @@ export class SimulatorNode {
 
     id: number;
     name: string;
-    color: string;
-    peers: number[] = [];
     /**
      * x and y are fractions from 0 to 1
      */
     pos: SimulatorNodePosition
+    color: string;
+    peers: number[];
     handleEvent: ISimulatorEventHandler;
     simulator: Simulator;
 
-    private static nextId = 0;
-
-    constructor(simulator: Simulator, name: string, color: string, pos: SimulatorNodePosition,
-        handleEvent: ISimulatorEventHandler)
+    constructor(simulator: Simulator, id: number, name: string, pos: SimulatorNodePosition,
+        color: string, peers: number[], handleEvent: ISimulatorEventHandler)
     {
-        this.id = SimulatorNode.nextId;
-        SimulatorNode.nextId++;
-        this.name = name;
-        this.color = color;
-        this.pos = pos;
-        this.handleEvent = handleEvent;
         this.simulator = simulator;
+        this.id = id;
+        this.name = name;
+        this.pos = pos;
+        this.color = color;
+        this.peers = peers;
+        this.handleEvent = handleEvent;
     }
 
     createEvent(timeOffset: number, type: string, msg?: object) {

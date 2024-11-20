@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom"
 import { ChangeEvent, PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
-import { ISimulatorLogger, Simulator } from "./simulator";
+import { ISimulatorLogger, Simulator, SimulatorNode } from "./simulator";
 import { initInitScript } from "./init-script";
-import { Circle, Layer, Stage } from "react-konva";
+import { Circle, Layer, Line, Stage, Text } from "react-konva";
+import { Text as KonvaText } from "konva/lib/shapes/Text";
 //import "./App.css"
 
 export default function App() {
@@ -183,13 +184,18 @@ function InitWindow(
         setInitScript(event.target.value);
     }
 
+    function onClickRun() {
+        runInitScript();
+        setShowInitWindow(false);
+    }
+
     return (
         <div className="absolute inset-8 bg-neutral-900 p-4 z-10 flex flex-row gap-4">
             <textarea value={initScript} onChange={onChangeInitScript}
                 className="grow p-4 resize-none"
             />
             <div className="flex flex-col gap-2 w-40">
-                <button onClick={runInitScript}>Run</button>
+                <button onClick={onClickRun}>Run</button>
             </div>
             <div onClick={onClickClose} className="w-fit h-fit text-4xl p-1 ml-4 leading-none
                 cursor-pointer"
@@ -200,13 +206,13 @@ function InitWindow(
     );
 }
 
-const PANEL_CLASS = "flex flex-col bg-neutral-700 p-4 h-1/2 gap-4 min-h-0";
+const PANEL_COLOR_CLASS = "bg-neutral-700"
 
 function EventsPanel({ simulator } : { simulator: Simulator }) {
 
 
     return (
-        <div className={PANEL_CLASS}>
+        <div className={"flex flex-col p-4 h-1/2 gap-4 min-h-0 " + PANEL_COLOR_CLASS}>
             <h2>Events</h2>
         </div>
     );
@@ -238,7 +244,7 @@ function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => v
     }
 
     return (
-        <div className={PANEL_CLASS}>
+        <div className={"flex flex-col p-4 h-1/2 gap-4 min-h-0 " + PANEL_COLOR_CLASS}>
             <div className="flex flex-row justify-between">
                 <h2>Log</h2>
                 <button onClick={onClickClear}>Clear</button>
@@ -287,7 +293,7 @@ function useSimulator() {
     // on every render
     const [simulator] = useState(() => new Simulator(getLogger()));
 
-    // Force render
+    // Force render, necessary because changes to simulator state are not detected by React
     // https://stackoverflow.com/a/53837442
     const [_, setUpdateValue] = useState(0);
     function forceRender() {
@@ -300,9 +306,83 @@ function useSimulator() {
 }
 
 function renderNodes(width: number, height: number, simulator: Simulator) {
+    const shapes = [] as ReactNode[];
+    let curShapeId = 0;
+
+    // Peer connection lines
+    // Draw lines first to make them go underneath node circles
+    for (const nodeId in simulator.nodes) {
+        const node = simulator.nodes[nodeId];
+
+        for (const nextNodeId of node.peers) {
+            const nextNode = simulator.nodes[nextNodeId];
+
+            // Compute midpoint of line to make a curve
+            const lineVector = [
+                nextNode.pos.x * width - node.pos.x * width,
+                nextNode.pos.y * height - nextNode.pos.y * height,
+            ];
+            // 90 degree clockwise rotation
+            const perpendicularVector = [-lineVector[1], lineVector[0]]
+            const midpoint = [
+                (node.pos.x * width + nextNode.pos.x * width) / 2 + perpendicularVector[0] * 0.1,
+                (node.pos.y * height + nextNode.pos.y * height) / 2 + perpendicularVector[1] * 0.1,
+            ]
+
+            shapes.push(
+                <Line
+                    key={curShapeId++}
+                    points={[
+                        node.pos.x * width, node.pos.y * height,
+                        midpoint[0], midpoint[1],
+                        nextNode.pos.x * width, nextNode.pos.y * height,
+                    ]}
+                    stroke={node.color}
+                    strokeWidth={5}
+                    tension={1}
+                />
+            );
+        }
+    }
+
+    for (const nodeId in simulator.nodes) {
+        const node = simulator.nodes[nodeId];
+
+        // Node circles
+        shapes.push(
+            <Circle
+                key={curShapeId++}
+                x={node.pos.x * width}
+                y={node.pos.y * height}
+                fill={node.color}
+                radius={30}
+            />
+        );
+
+        // Node labels
+        const textConfig = {
+            x: node.pos.x * width,
+            y: node.pos.y * height + 40,
+            text: node.name,
+            fontSize: 20,
+            fill: "white",
+        }
+        // Use Konva Text object to determine offsetX
+        const konvaText = new KonvaText(textConfig);
+        shapes.push(
+            <Text
+                key={curShapeId++}
+                { ...textConfig }
+                offsetX={konvaText.width() / 2}
+            />
+        );
+
+    }
+
+
     return (
         <Layer>
-            <Circle x={width / 2} y={height / 2} fill="white" radius={50} />
+            { shapes }
         </Layer>
     );
 }
