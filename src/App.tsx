@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom"
-import { useEffect, useRef, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { ISimulatorLogger, Simulator } from "./simulator";
 //import "./App.css"
 
 export default function App() {
     const { simulator, log, forceRender } = useSimulator();
+    const [initScript, setInitScript] = useState("logger.info(\"Hello from init!\");");
 
     const [isShowInitWindow, setShowInitWindow] = useState(false);
 
@@ -17,6 +18,8 @@ export default function App() {
                     simulator={simulator}
                     isShowInitWindow={isShowInitWindow}
                     setShowInitWindow={setShowInitWindow}
+                    initScript={initScript}
+                    setInitScript={setInitScript}
                 />
             </div>
         </div>
@@ -41,7 +44,7 @@ function Menu(
         setShowInitWindow(!isShowInitWindow);
     }
 
-    const initButtonClass = isShowInitWindow ? "bg-neutral-500" : "";
+    const initButtonClass = isShowInitWindow ? "active" : "";
 
     return (
         <div className="flex flex-row justify-start items-center gap-4 self-stretch">
@@ -51,12 +54,26 @@ function Menu(
 }
 
 function SimulatorView(
-    { simulator, isShowInitWindow, setShowInitWindow } :
-    { simulator: Simulator, isShowInitWindow: boolean, setShowInitWindow: (status: boolean) => void }
+    { simulator, isShowInitWindow, setShowInitWindow, initScript, setInitScript } :
+    {
+        simulator: Simulator,
+        isShowInitWindow: boolean,
+        setShowInitWindow: (status: boolean) => void,
+        initScript: string,
+        setInitScript: (v: string) => void,
+    }
 ) {
     return (
         <div className="flex flex-row grow self-stretch justify-center relative"> { /* relative for InitWindow */ }
-            { isShowInitWindow ? <InitWindow setShowInitWindow={setShowInitWindow} /> : null }
+            {
+                isShowInitWindow ?
+                    <InitWindow
+                        setShowInitWindow={setShowInitWindow}
+                        initScript={initScript}
+                        setInitScript={setInitScript}
+                    /> :
+                    null
+            }
             <Canvas
                 className="w-1/2 h-full"
                 render={
@@ -94,12 +111,29 @@ function Canvas(
     );
 }
 
-function InitWindow({ setShowInitWindow } : { setShowInitWindow: (status: boolean) => void }) {
+function InitWindow(
+    { setShowInitWindow, initScript, setInitScript } :
+    {
+        setShowInitWindow: (status: boolean) => void,
+        initScript: string,
+        setInitScript: (v: string) => void,
+    }
+) {
+    function onCloseClick() {
+        setShowInitWindow(false);
+    }
 
+    function onChangeInitScript(event: ChangeEvent<HTMLTextAreaElement>) {
+        setInitScript(event.target.value);
+    }
 
     return (
-        <div className="absolute inset-8 flex bg-neutral-900">
-            
+        <div className="absolute inset-8 bg-neutral-900 p-4 flex flex-row gap-4">
+            <textarea value={initScript} onChange={onChangeInitScript} className="grow p-2" />
+            <div className="flex flex-col gap-2 w-40">
+                <button>Run</button>
+            </div>
+            <div onClick={onCloseClick} className="w-fit h-fit text-4xl p-1 leading-none cursor-pointer">&times;</div>
         </div>
     );
 }
