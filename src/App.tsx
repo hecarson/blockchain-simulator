@@ -6,12 +6,18 @@ import { ISimulatorLogger, Simulator } from "./simulator";
 export default function App() {
     const { simulator, log, forceRender } = useSimulator();
 
+    const [isShowInitWindow, setShowInitWindow] = useState(false);
+
     return (
         <div className="flex flex-col items-center h-full">
             <Header />
-            <div className="flex flex-col gap-4 grow self-stretch p-4">
-                <Menu />
-                <SimulatorView simulator={simulator} />
+            <div className="flex flex-col gap-4 grow self-stretch p-4 relative">
+                <Menu isShowInitWindow={isShowInitWindow} setShowInitWindow={setShowInitWindow} />
+                <SimulatorView
+                    simulator={simulator}
+                    isShowInitWindow={isShowInitWindow}
+                    setShowInitWindow={setShowInitWindow}
+                />
             </div>
         </div>
     );
@@ -19,28 +25,38 @@ export default function App() {
 
 function Header() {
     return (
-        <header className="flex flex-row justify-start items-center gap-8 self-stretch p-4 bg-neutral-700">
-            <h1>Blockchain Simulator</h1>
-            <h2>Carson He, Duke Nguyen</h2>
+        <header className="flex flex-row justify-start items-center gap-8 self-stretch p-2 bg-neutral-700">
+            <h2>Blockchain Simulator</h2>
+            <div>Carson He, Duke Nguyen</div>
             <Link to="/test" className="">(Test page)</Link>
         </header>
     );
 }
 
-function Menu() {
+function Menu(
+    { isShowInitWindow, setShowInitWindow } :
+    { isShowInitWindow: boolean, setShowInitWindow: (status: boolean) => void }
+) {
+    function onInitClick() {
+        setShowInitWindow(!isShowInitWindow);
+    }
+
+    const initButtonClass = isShowInitWindow ? "bg-neutral-500" : "";
+
     return (
         <div className="flex flex-row justify-start items-center gap-4 self-stretch">
-            <button>Init</button>
+            <button onClick={onInitClick} className={initButtonClass}>Init</button>
         </div>
     );
 }
 
 function SimulatorView(
-    { simulator } :
-    { simulator: Simulator }
+    { simulator, isShowInitWindow, setShowInitWindow } :
+    { simulator: Simulator, isShowInitWindow: boolean, setShowInitWindow: (status: boolean) => void }
 ) {
     return (
-        <div className="flex flex-row grow self-stretch justify-center">
+        <div className="flex flex-row grow self-stretch justify-center relative"> { /* relative for InitWindow */ }
+            { isShowInitWindow ? <InitWindow setShowInitWindow={setShowInitWindow} /> : null }
             <Canvas
                 className="w-1/2 h-full"
                 render={
@@ -78,7 +94,15 @@ function Canvas(
     );
 }
 
+function InitWindow({ setShowInitWindow } : { setShowInitWindow: (status: boolean) => void }) {
 
+
+    return (
+        <div className="absolute inset-8 flex bg-neutral-900 relative">
+            
+        </div>
+    );
+}
 
 
 
