@@ -283,10 +283,9 @@ const ProofOfStake: React.FC = () => {
           </div>
           {userSelectedValidator !== null && (
             <div className="selected-validator">
-              <h3>Selected Validator:</h3>
-              <p>ID: {userSelectedValidator}</p>
-              <p>Name: {validators.find(v => v.id === userSelectedValidator)?.name}</p>
-              <p>Staked Amount: {validators.find(v => v.id === userSelectedValidator)?.stakedAmount} Coins</p>
+              <h3 style={{color : "yellow"}}>Selected Validator:</h3>
+              <p>{validators.find(v => v.id === userSelectedValidator)?.name}</p>
+              <p>having {validators.find(v => v.id === userSelectedValidator)?.stakedAmount} Coins</p>
             </div>
           )}
         </div>

@@ -13,6 +13,15 @@
     gap: 20px;
   }
   
+  .selected-validator {
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #000;
+    max-height: 400px;
+    max-width: 200px;
+    width: 200px;
+  }
+
   .validators-scrollable {
     overflow-y: auto;
     padding: 10px;
