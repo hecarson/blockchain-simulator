@@ -91,10 +91,10 @@ export class SimulatorNode {
         this.simulator = simulator;
     }
 
-    createEvent(timeOffset: number, type: string, msg?: object) {
+    createEvent(_timeOffset: number, _type: string, _msg?: object) {
     }
 
-    sendMessage(dst: number, msg: object): void {
+    sendMessage(_dst: number, _msg: object): void {
     }
 
 }
