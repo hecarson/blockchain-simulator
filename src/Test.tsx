@@ -30,7 +30,7 @@ export default function Test() {
     }
 
     return (
-        <div className="flex flex-col p-4 gap-4 items-center">
+        <div className="flex flex-col grow p-4 gap-4 items-center w-screen h-screen">
             <h1 className="mb-4">Test page</h1>
             <Controls simulator={simulator} updateLog={updateLog} clearLog={clearLog} />
             <Log log={log} />
@@ -73,7 +73,7 @@ function Controls(
 
 function Log({ log } : { log: string[] }) {
     return (
-        <div className="flex flex-col border-2 w-1/3 p-2">
+        <div className="flex flex-col grow border-2 w-1/3 p-2 overflow-auto">
             { log.map((entry, index) => <div key={index}>{entry}</div>) }
         </div>
     );
