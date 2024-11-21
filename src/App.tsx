@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { ChangeEvent, PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
-import { ISimulatorLogger, Simulator, SimulatorNode } from "./simulator";
+import { ISimulatorLogger, Simulator } from "./simulator";
 import { initInitScript } from "./init-script";
 import { Circle, Layer, Line, Stage, Text } from "react-konva";
 import { Text as KonvaText } from "konva/lib/shapes/Text";
@@ -101,6 +101,8 @@ function SimulatorView(
         forceRender: () => void,
     }
 ) {
+    const [selectedNodeId, setSelectedNodeId] = useState<number | null>(null);
+
     // relative for InitWindow
     return (
         <div className="flex flex-row grow justify-center items-stretch relative min-h-0">
@@ -115,10 +117,15 @@ function SimulatorView(
                     null
             }
             <div className="flex flex-col w-[30%] gap-4 min-h-0">
+                <NodeDetailsPanel
+                    simulator={simulator}
+                    selectedNodeId={selectedNodeId}
+                    setSelectedNodeId={setSelectedNodeId}
+                />
             </div>
             <Canvas
                 className="w-[40%]"
-                render={(width, height) => renderNodes(width, height, simulator)}
+                render={(width, height) => renderNodes(width, height, simulator, setSelectedNodeId)}
             />
             <div className="flex flex-col w-[30%] gap-4 min-h-0">
                 <EventsPanel simulator={simulator} />
@@ -147,28 +154,25 @@ function Canvas(
         []
     );
 
-    function Container({ children } : PropsWithChildren) {
-        return (
-            <div ref={containerRef} className={className}>
-                { children }
-            </div>
-        );
-    }
-
-    if (!dimensions)
-        return ( <Container /> );
-
     return (
-        <Container>
-            <Stage width={dimensions.width} height={dimensions.height}>
-                { render(dimensions.width, dimensions.height) }
-            </Stage>
-        </Container>
+        <div ref={containerRef} className={className}>
+            { dimensions ?
+                <Stage width={dimensions.width} height={dimensions.height}>
+                    { render(dimensions.width, dimensions.height) }
+                </Stage> :
+                null
+            }
+        </div>
     );
 }
 
 function InitWindow(
-    { setShowInitWindow, initScript, setInitScript, runInitScript } :
+    {
+        setShowInitWindow,
+        initScript,
+        setInitScript,
+        runInitScript,
+    } :
     {
         setShowInitWindow: (status: boolean) => void,
         initScript: string,
@@ -256,6 +260,92 @@ function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => v
     );
 }
 
+function NodeDetailsPanel(
+    {
+        simulator,
+        selectedNodeId,
+        setSelectedNodeId,
+    } :
+    {
+        simulator: Simulator,
+        selectedNodeId: number | null,
+        setSelectedNodeId: (id: number | null) => void,
+    }
+) {
+    function onClickDeselect() {
+        setSelectedNodeId(null);
+    }
+
+    function Container({ children }: PropsWithChildren) {
+        return (
+            <div className={"flex flex-col p-4 h-full gap-4 min-h-0 " + PANEL_COLOR_CLASS}>
+                <div className="flex flex-row justify-between">
+                    <h2>Node Details</h2>
+                    <button onClick={onClickDeselect}>Deselect</button>
+                </div>
+                <div className="flex flex-col grow bg-neutral-800 overflow-auto min-h-0">
+                    { children }
+                </div>
+            </div>
+        );
+    }
+
+    if (!selectedNodeId) {
+        return (
+            <Container />
+        );
+    }
+
+    const node = simulator.nodes[selectedNodeId];
+    const { simulator: _1, handleEvent: _2, ...filteredNode } = node;
+
+    return (
+        <Container>
+            <ObjectDetails name={`node${selectedNodeId}`} obj={filteredNode} level={0} />
+        </Container>
+    );
+}
+
+/**
+ * Displays an object and recurses into nested objects.
+ */
+function ObjectDetails(
+    { name, obj, level } :
+    { name: string, obj: any, level: number }
+) {
+    const [isExpand, setIsExpand] = useState(false);
+
+    function Item({ name, value } : { name: string, value: string }) {
+        const valueText = (!isExpand && typeof(obj) === "object") ?
+            "[...]" : value;
+
+        return (
+            <div
+                className="pr-4 border-b-[1px]"
+                style={{paddingLeft: `${level + 1}rem`}}
+                onClick={() => setIsExpand(!isExpand)}
+            >
+                {`${name}: ${valueText}`}
+            </div>
+        );
+    }
+
+    if (typeof(obj) !== "object") {
+        return (
+            <Item name={name} value={obj.toString()} />
+        );
+    }
+    else {
+        return [
+            <Item name={name} value="" />,
+            ... isExpand ?
+                Object.keys(obj).map((key, index) =>
+                    <ObjectDetails key={index} name={key} obj={obj[key]} level={level + 1} />) :
+                []
+        ];
+    }
+}
+
 
 
 // Helper code
@@ -305,7 +395,9 @@ function useSimulator() {
     };
 }
 
-function renderNodes(width: number, height: number, simulator: Simulator) {
+function renderNodes(width: number, height: number, simulator: Simulator,
+    setSelectedNodeId: (id: number | null) => void,
+) {
     const shapes = [] as ReactNode[];
     let curShapeId = 0;
 
@@ -349,6 +441,10 @@ function renderNodes(width: number, height: number, simulator: Simulator) {
     for (const nodeId in simulator.nodes) {
         const node = simulator.nodes[nodeId];
 
+        function onNodeClick() {
+            setSelectedNodeId(Number.parseInt(nodeId));
+        }
+
         // Node circles
         shapes.push(
             <Circle
@@ -357,6 +453,7 @@ function renderNodes(width: number, height: number, simulator: Simulator) {
                 y={node.pos.y * height}
                 fill={node.color}
                 radius={30}
+                onClick={onNodeClick}
             />
         );
 
@@ -377,9 +474,7 @@ function renderNodes(width: number, height: number, simulator: Simulator) {
                 offsetX={konvaText.width() / 2}
             />
         );
-
     }
-
 
     return (
         <Layer>
