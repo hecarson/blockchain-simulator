@@ -1,9 +1,15 @@
 
+// Assumptions:
+// * All messages have a valid signature and are not forged.
+// * All nodes use a unique ID for all new transactions.
 
 function goodEventHandler(node, event) {
     if (event.type === "init") {
         handleInit(node);
         return;
+    }
+    if (event.type === "msg") {
+        handleMsg(node, event.msg);
     }
 }
 
@@ -11,6 +17,9 @@ function badEventHandler(node, event) {
     if (event.type === "init") {
         handleInit(node);
         return;
+    }
+    if (event.type === "msg") {
+        handleMsg(node, event.msg);
     }
 }
 
@@ -37,7 +46,22 @@ function handleInit(node) {
 }
 
 function handleMsg(node, msg) {
-    
+    if (msg.type === "transaction") {
+        // Do nothing if transaction is already known
+        if (msg.transaction.id in node.mempool)
+            return;
+
+        // Save transaction
+        node.mempool[msg.transaction.id] = msg.transaction;
+        logger.info(`[node${node.id}] saved transaction ${msg.transaction.id}`);
+
+        // Gossip to peers
+        for (let nextNodeId of node.peers) {
+            node.sendMessage(nextNodeId, {
+                type: "transaction", transaction: msg.transaction
+            });
+        }
+    }
 }
 
 
@@ -75,6 +99,21 @@ simulator.eventQueue.push({
 });
 
 // Transactions
-//simulator.eventQueue.push({
-//    time: 2, 
-//});
+simulator.eventQueue.push({
+    time: 2, dst: 2, type: "msg", msg: {
+        type: "transaction",
+        transaction: {
+            id: 10, src: 1, dst: 2, amount: 10,
+        },
+    },
+});
+simulator.eventQueue.push({
+    time: 4, dst: 4, type: "msg", msg: {
+        type: "transaction",
+        transaction: {
+            id: 11, src: 4, dst: 3, amount: 20,
+        },
+    },
+});
+
+

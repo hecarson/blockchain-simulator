@@ -43,7 +43,7 @@ export class Simulator {
             (e: SimulatorEvent) => e.time
         );
         
-        this.logger = new TagLogger(logger);
+        this.logger = new TagLogger(logger, this);
     }
 
     /**
@@ -58,7 +58,6 @@ export class Simulator {
         this.nodes = {};
         this.eventQueue.clear();
         this.curTime = 0;
-        this.logger.time = this.curTime;
 
         try {
             const initFunction = new Function("simulator", "logger", initScript);
@@ -273,17 +272,18 @@ export type SimulatorNodePosition = {
  */
 class TagLogger implements ISimulatorLogger {
     logger: ISimulatorLogger;
-    time: number | null = null;
+    simulator: Simulator;
 
-    constructor(logger: ISimulatorLogger) {
+    constructor(logger: ISimulatorLogger, simulator: Simulator) {
         this.logger = logger;
+        this.simulator = simulator;
     }
 
     info(m: string): void {
-        this.logger!.info(`[INFO] [t=${this.time}] ${m}`);
+        this.logger!.info(`[INFO] [t=${this.simulator.curTime}] ${m}`);
     }
 
     error(m: string): void {
-        this.logger!.error(`[ERROR] [t=${this.time}] ${m}`);
+        this.logger!.error(`[ERROR] [t=${this.simulator.curTime}] ${m}`);
     }
 }

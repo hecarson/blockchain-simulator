@@ -241,9 +241,10 @@ function EventsPanel({ simulator } : { simulator: Simulator }) {
                 { simulator.eventQueue.toArray().map((event, index) =>
                     <ObjectDetails
                         key={index}
-                        name={`t=${event.time} type=${event.type}`}
+                        name={`t=${event.time} dst=${event.dst} type=${event.type}`}
                         obj={event}
                         level={0}
+                        startExpand={false}
                     />
                 ) }
             </div>
