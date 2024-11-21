@@ -348,7 +348,7 @@ function ObjectDetails(
     const [isExpand, setIsExpand] = useState(startExpand);
 
     function Item({ name, value } : { name: string, value: string }) {
-        const valueText = (!isExpand && typeof(obj) === "object") ?
+        const valueText = (!isExpand && typeof(obj) === "object" && obj !== null) ?
             "[...]" : value;
 
         return (
@@ -362,7 +362,7 @@ function ObjectDetails(
         );
     }
 
-    if (typeof(obj) !== "object") {
+    if (typeof(obj) !== "object" || obj === null) {
         return (
             <Item name={name} value={String(obj)} />
         );
