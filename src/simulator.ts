@@ -15,9 +15,15 @@ export class Simulator {
      */
     eventQueue: MinPriorityQueue<SimulatorEvent>;
     /**
-     * Current time of the simulator during event exeuction.
+     * Current time of the simulator during event execution. Not intended to be modified
+     * by init scripts, but init scripts can read this value.
      */
     curTime = 0;
+    /**
+     * Time delay before a message arrives at its destination node. Can be set by
+     * init scripts.
+     */
+    messageDelay = 3;
     /**
      * Logger for displaying log messages. This is not intended for use in init scripts,
      * since they are already given the logger parameter.
@@ -195,6 +201,7 @@ export class SimulatorNode {
      * 
      */
     createEvent(delay: number, type: string, msg?: object) {
+        
     }
 
     /**
