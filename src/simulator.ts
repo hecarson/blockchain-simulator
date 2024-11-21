@@ -130,7 +130,7 @@ export class Simulator {
 
             try {
                 const event = this.eventQueue.front();
-                if (event.isBreakpoint)
+                if (event.type === "break" && numEventsExecuted > 0)
                     return true;
 
                 this.executeNextEvent();
@@ -146,6 +146,9 @@ export class Simulator {
 
     private executeNextEvent() {
         const event = this.eventQueue.pop();
+        // Do nothing for breakpoint events
+        if (event.type === "break")
+            return;
         const node = this.nodes[event.dst];
         this.curTime = event.time;
         node.handleEvent(node, event);
@@ -199,13 +202,12 @@ export class SimulatorNode {
      * Intended for use by init scripts. Creates an event that will be sent to this
      * node after a time delay.
      */
-    createEvent(delay: number, type: string, isBreakpoint: boolean, msg?: object) {
+    createEvent(delay: number, type: string, msg?: object) {
         const event: SimulatorEvent = {
             time: this.simulator.curTime + delay,
             dst: this.id,
             type: type,
             msg: msg,
-            isBreakpoint: isBreakpoint,
         };
         this.simulator.eventQueue.push(event);
     }
@@ -214,13 +216,12 @@ export class SimulatorNode {
      * Intended for use by init scripts. Send a message to another node.
      * This creates a message event.
      */
-    sendMessage(dst: number, isBreakpoint: boolean, msg: object) {
+    sendMessage(dst: number, msg: object) {
         const event: SimulatorEvent = {
             time: this.simulator.curTime + this.simulator.messageDelay,
             dst: dst,
             type: "msg",
             msg: msg,
-            isBreakpoint: isBreakpoint,
         };
         this.simulator.eventQueue.push(event);
     }
@@ -237,17 +238,16 @@ export type SimulatorEvent = {
      */
     dst: number;
     /**
-     * Type of event, can be any string. "msg" type is used for message events.
+     * Type of event, can be any string.
+     * * "msg" type is used for message events.
+     * * "break" type is used for breakpoint events. The simulator will pause before
+     *   executing the event and do nothing when executing. The dst ID is ignored for this type.
      */
     type: string;
     /**
      * Message data for message events.
      */
     msg?: object;
-    /**
-     * Whether the simulator should pause before executing this event.
-     */
-    isBreakpoint: boolean;
 }
 
 export interface ISimulatorLogger {

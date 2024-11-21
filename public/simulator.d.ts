@@ -23,8 +23,8 @@ class SimulatorNode {
     handleEvent: ISimulatorEventHandler;
     simulator: Simulator;
 
-    createEvent(delay: number, type: string, isBreakpoint: boolean, msg?: object): void;
-    sendMessage(dst: number, isBreakpoint: boolean, msg: object): void;
+    createEvent(delay: number, type: string, msg?: object): void;
+    sendMessage(dst: number, msg: object): void;
 }
 
 type SimulatorEvent = {
@@ -32,7 +32,6 @@ type SimulatorEvent = {
     dst: number;
     type: string;
     msg?: object;
-    isBreakpoint: boolean;
 }
 
 interface ISimulatorLogger {
