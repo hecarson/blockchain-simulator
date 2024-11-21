@@ -319,14 +319,14 @@ function renderNodes(width: number, height: number, simulator: Simulator) {
 
             // Compute midpoint of line to make a curve
             const lineVector = [
-                nextNode.pos.x * width - node.pos.x * width,
-                nextNode.pos.y * height - nextNode.pos.y * height,
+                nextNode.pos.x - node.pos.x,
+                nextNode.pos.y - node.pos.y,
             ];
             // 90 degree clockwise rotation
             const perpendicularVector = [-lineVector[1], lineVector[0]]
             const midpoint = [
-                (node.pos.x * width + nextNode.pos.x * width) / 2 + perpendicularVector[0] * 0.1,
-                (node.pos.y * height + nextNode.pos.y * height) / 2 + perpendicularVector[1] * 0.1,
+                (node.pos.x + nextNode.pos.x) / 2 + perpendicularVector[0] * 0.1,
+                (node.pos.y + nextNode.pos.y) / 2 + perpendicularVector[1] * 0.1,
             ]
 
             shapes.push(
@@ -334,7 +334,7 @@ function renderNodes(width: number, height: number, simulator: Simulator) {
                     key={curShapeId++}
                     points={[
                         node.pos.x * width, node.pos.y * height,
-                        midpoint[0], midpoint[1],
+                        midpoint[0] * width, midpoint[1] * height,
                         nextNode.pos.x * width, nextNode.pos.y * height,
                     ]}
                     stroke={node.color}
@@ -345,6 +345,7 @@ function renderNodes(width: number, height: number, simulator: Simulator) {
         }
     }
 
+    // Other graphics
     for (const nodeId in simulator.nodes) {
         const node = simulator.nodes[nodeId];
 
