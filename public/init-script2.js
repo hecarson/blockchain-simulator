@@ -107,7 +107,6 @@ function handleInitEvent(node) {
 
     // List of blocks, with initial block
     node.blockchain = [{
-        id: 1,
         proposer: -1,
         transactions: initialTransactions,
     }];
