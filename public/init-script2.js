@@ -133,9 +133,6 @@ function handleSelectValidatorEvent(node) {
     node.createEvent(EPOCH_INTERVAL, "selectValidator");
 }
 
-function handleMsg(node, msg) {
-}
-
 function handleTransactionMsg(node, msg) {
     // Do nothing if transaction is already known
     if (msg.transaction.id in node.mempool)
