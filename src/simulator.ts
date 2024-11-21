@@ -30,7 +30,7 @@ export class Simulator {
      * Returns whether the init script ran successfully.
      *
      * An init script is given two parameters:
-     * * nodes: Node[]
+     * * simulator: Simulator
      * * logger: ILogger
      */
     init(initScript: string): boolean {
@@ -52,7 +52,8 @@ export class Simulator {
     }
 
     /**
-     * Creates a new node in the simulator network. Nodes should only be created with this function.
+     * Intended for init scripts. Creates a new node in the simulator network.
+     * Nodes should be created only with this function.
      */
     createNewNode(id: number, name: string, pos: SimulatorNodePosition, color: string, peers: number[],
         handleEvent: ISimulatorEventHandler
@@ -68,14 +69,31 @@ export class Simulator {
 export class SimulatorNode {
 
     id: number;
+    /**
+     * Name of node that is displayed on the network graph.
+     */
     name: string;
     /**
-     * x and y are fractions from 0 to 1
+     * Position of the node in the network graph. x and y are fractions from 0 to 1.
      */
     pos: SimulatorNodePosition
+    /**
+     * Color of the node in the network graph.
+     */
     color: string;
+    /**
+     * Peer nodes that this node knows about.
+     */
     peers: number[];
+    /**
+     * Event handler for this node. All events are passed to this handler. This is used
+     * to implement arbitrary node behavior.
+     */
     handleEvent: ISimulatorEventHandler;
+    /**
+     * This is for internal use and not intended for init scripts.
+     * Simulator object that this node belongs to.
+     */
     simulator: Simulator;
 
     constructor(simulator: Simulator, id: number, name: string, pos: SimulatorNodePosition,
@@ -90,18 +108,36 @@ export class SimulatorNode {
         this.handleEvent = handleEvent;
     }
 
-    createEvent(timeOffset: number, type: string, msg?: object) {
+    /**
+     * Creates an event that will be sent to this node after a time delay.
+     */
+    createEvent(delay: number, type: string, msg?: object) {
     }
 
+    /**
+     * Send a message to another node. This creates a message event.
+     */
     sendMessage(dst: number, msg: object): void {
     }
 
 }
 
 export type SimulatorEvent = {
+    /**
+     * Time of when the event is received by the desintation node.
+     */
     time: number;
-    target: number;
+    /**
+     * Destination node ID
+     */
+    dst: number;
+    /**
+     * Type of event, can be any string. "msg" type is used for message events.
+     */
     type: string;
+    /**
+     * Message data for message events.
+     */
     msg?: object;
 }
 
