@@ -25,6 +25,7 @@ class SimulatorNode {
 
     createEvent(delay: number, type: string, msg?: object): void;
     sendMessage(dst: number, msg: object): void;
+    broadcastMessage(msg: object): void;
 }
 
 type SimulatorEvent = {

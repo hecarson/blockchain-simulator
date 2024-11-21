@@ -364,7 +364,7 @@ function ObjectDetails(
 
     if (typeof(obj) !== "object") {
         return (
-            <Item name={name} value={obj.toString()} />
+            <Item name={name} value={String(obj)} />
         );
     }
     else {

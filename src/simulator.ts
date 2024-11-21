@@ -213,7 +213,7 @@ export class SimulatorNode {
 
     /**
      * Intended for use by init scripts. Send a message to another node.
-     * This creates a message event.
+     * Creates a message event.
      */
     sendMessage(dst: number, msg: object) {
         const event: SimulatorEvent = {
@@ -225,6 +225,15 @@ export class SimulatorNode {
         this.simulator.eventQueue.push(event);
     }
 
+    /**
+     * Intended for use by init scripts. Broadcast a message to all peers of
+     * this node. Creates message events.
+     */
+    broadcastMessage(msg: object) {
+        for (let nextNodeId of this.peers) {
+            this.sendMessage(nextNodeId, msg);
+        }
+    }
 }
 
 export type SimulatorEvent = {
