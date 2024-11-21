@@ -219,7 +219,7 @@ function InitWindow(
             <div className="flex flex-col gap-2 w-40">
                 <button onClick={onClickRun}>Run</button>
             </div>
-            <div onClick={onClickClose} className="w-fit h-fit text-4xl p-1 ml-4 leading-none
+            <div onClick={onClickClose} className="w-fit h-fit text-4xl px-2 py-1 ml-4 leading-none
                 cursor-pointer"
             >
                 &times;

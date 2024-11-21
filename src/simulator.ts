@@ -148,7 +148,7 @@ export class Simulator {
         const event = this.eventQueue.pop();
         const node = this.nodes[event.dst];
         this.curTime = event.time;
-        node.handleEvent(event);
+        node.handleEvent(node, event);
     }
 
 }
@@ -214,7 +214,7 @@ export class SimulatorNode {
      * Intended for use by init scripts. Send a message to another node.
      * This creates a message event.
      */
-    sendMessage(dst: number, isBreakpoint: boolean, msg: object): void {
+    sendMessage(dst: number, isBreakpoint: boolean, msg: object) {
         const event: SimulatorEvent = {
             time: this.simulator.curTime + this.simulator.messageDelay,
             dst: dst,
@@ -256,7 +256,7 @@ export interface ISimulatorLogger {
 }
 
 export interface ISimulatorEventHandler {
-    (event: SimulatorEvent): void;
+    (node: SimulatorNode, event: SimulatorEvent): void;
 }
 
 export type SimulatorNodePosition = {
