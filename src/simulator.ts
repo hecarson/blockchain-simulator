@@ -19,9 +19,12 @@ export class Simulator {
      */
     curTime = 0;
     /**
-     * Logger
+     * Logger for displaying log messages. This is not intended for use in init scripts,
+     * since they are already given the logger parameter.
      */
-    private tagLogger: TagLogger;
+    logger: TagLogger;
+
+    private EMPTY_QUEUE_MSG = "No more events";
 
     /**
      * Initializes an empty simulator.
@@ -34,7 +37,7 @@ export class Simulator {
             (e: SimulatorEvent) => e.time
         );
         
-        this.tagLogger = new TagLogger(logger);
+        this.logger = new TagLogger(logger);
     }
 
     /**
@@ -49,17 +52,19 @@ export class Simulator {
         this.nodes = {};
         this.eventQueue.clear();
         this.curTime = 0;
-        this.tagLogger.time = this.curTime;
+        this.logger.time = this.curTime;
 
         try {
             const initFunction = new Function("simulator", "logger", initScript);
-            initFunction(this, this.tagLogger);
+            initFunction(this, this.logger);
         }
         catch (e) {
             console.log(e);
+            this.logger.error("Init failed. Check browser console for details.");
             return false;
         }
 
+        this.logger.info("Init successful!");
         return true;
     }
 
@@ -75,8 +80,72 @@ export class Simulator {
         return node;
     }
 
-}
+    /**
+     * Executes the event at the front of the queue (lowest time) and pause execution.
+     * Returns whether execution was successful.
+     */
+    stepEvent(): boolean {
+        if (this.eventQueue.isEmpty()) {
+            this.logger.info(this.EMPTY_QUEUE_MSG);
+            return true;
+        }
 
+        try {
+            this.executeNextEvent();
+        }
+        catch (e) {
+            console.log(e);
+            this.logger.error("Step event failed. Check browser console for details.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Repeatedly executes events at the front of the queue, until a breakpoint event is hit,
+     * a maximum number of events have been executed, or the queue is empty. Returns whether
+     * execution was successful.
+     */
+    continue(): boolean {
+        const MAX_EVENTS_PER_CONTINUE = 1000;
+        let numEventsExecuted = 0;
+
+        while (true) {
+            if (this.eventQueue.isEmpty()) {
+                this.logger.info(this.EMPTY_QUEUE_MSG);
+                return true;
+            }
+
+            if (numEventsExecuted >= MAX_EVENTS_PER_CONTINUE) {
+                this.logger.info(`Executed ${numEventsExecuted} events, pausing`);
+                return true;
+            }
+
+            try {
+                const event = this.eventQueue.front();
+                if (event.isBreakpoint)
+                    return true;
+
+                this.executeNextEvent();
+                numEventsExecuted++;
+            }
+            catch (e) {
+                console.log(e);
+                this.logger.error("Continue failed. Check browser console for details.");
+                return false;
+            }
+        }
+    }
+
+    private executeNextEvent() {
+        const event = this.eventQueue.pop();
+        const node = this.nodes[event.dst];
+        this.curTime = event.time;
+        node.handleEvent(event);
+    }
+
+}
 
 export class SimulatorNode {
 
@@ -151,6 +220,10 @@ export type SimulatorEvent = {
      * Message data for message events.
      */
     msg?: object;
+    /**
+     * Whether the simulator should pause before executing this event.
+     */
+    isBreakpoint: boolean;
 }
 
 export interface ISimulatorLogger {

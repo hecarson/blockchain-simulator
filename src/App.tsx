@@ -12,16 +12,7 @@ export default function App() {
     const [isShowInitWindow, setShowInitWindow] = useState(false);
 
     function runInitScript() {
-        const success = simulator.init(initScript);
-        if (success) {
-            log.push({ type: LogEntryType.Info, message: "Init successful!" });
-        }
-        else {
-            log.push({
-                type: LogEntryType.Error,
-                message: "Init failed. Check browser console for details."
-            });
-        }
+        simulator.init(initScript);
         forceRender();
     }
 
@@ -33,7 +24,12 @@ export default function App() {
         <div className="flex flex-col w-screen h-screen">
             <Header />
             <div className="flex flex-col grow p-4 gap-4 min-h-0">
-                <Menu isShowInitWindow={isShowInitWindow} setShowInitWindow={setShowInitWindow} />
+                <Menu
+                    isShowInitWindow={isShowInitWindow}
+                    setShowInitWindow={setShowInitWindow}
+                    simulator={simulator}
+                    forceRender={forceRender}
+                />
                 <SimulatorView
                     simulator={simulator}
                     log={log}
@@ -63,18 +59,40 @@ function Header() {
 }
 
 function Menu(
-    { isShowInitWindow, setShowInitWindow } :
-    { isShowInitWindow: boolean, setShowInitWindow: (status: boolean) => void }
+    {
+        isShowInitWindow,
+        setShowInitWindow,
+        simulator,
+        forceRender,
+    } :
+    {
+        isShowInitWindow: boolean,
+        setShowInitWindow: (status: boolean) => void,
+        simulator: Simulator,
+        forceRender: () => void,
+    }
 ) {
-    function onInitClick() {
+    function onClickInit() {
         setShowInitWindow(!isShowInitWindow);
+    }
+
+    function onClickContinue() {
+        simulator.continue();
+        forceRender();
+    }
+
+    function onClickStepEvent() {
+        simulator.stepEvent();
+        forceRender();
     }
 
     const initButtonClass = isShowInitWindow ? "active" : "";
 
     return (
         <div className="flex flex-row justify-start items-center gap-4">
-            <button onClick={onInitClick} className={initButtonClass}>Init</button>
+            <button onClick={onClickInit} className={initButtonClass}>Init</button>
+            <button onClick={onClickContinue}>Continue</button>
+            <button onClick={onClickStepEvent}>Step Event</button>
         </div>
     );
 }
@@ -211,13 +229,24 @@ function InitWindow(
 }
 
 const PANEL_COLOR_CLASS = "bg-neutral-700"
+const PANEL_INNER_COLOR_CLASS = "bg-neutral-800"
 
 function EventsPanel({ simulator } : { simulator: Simulator }) {
 
 
     return (
         <div className={"flex flex-col p-4 h-1/2 gap-4 min-h-0 " + PANEL_COLOR_CLASS}>
-            <h2>Events</h2>
+            <h2>Event Queue</h2>
+            <div className={"flex flex-col grow overflow-auto min-h-0 " + PANEL_INNER_COLOR_CLASS}>
+                { simulator.eventQueue.toArray().map((event, index) =>
+                    <ObjectDetails
+                        key={index}
+                        name={`t=${event.time} type=${event.type}`}
+                        obj={event}
+                        level={0}
+                    />
+                ) }
+            </div>
         </div>
     );
 }
@@ -253,7 +282,7 @@ function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => v
                 <h2>Log</h2>
                 <button onClick={onClickClear}>Clear</button>
             </div>
-            <div className="flex flex-col grow overflow-auto bg-neutral-800 min-h-0">
+            <div className={"flex flex-col grow overflow-auto min-h-0 " + PANEL_INNER_COLOR_CLASS}>
                 { log.map(logEntryToElement) }
             </div>
         </div>
@@ -283,7 +312,7 @@ function NodeDetailsPanel(
                     <h2>Node Details</h2>
                     <button onClick={onClickDeselect}>Deselect</button>
                 </div>
-                <div className="flex flex-col grow bg-neutral-800 overflow-auto min-h-0">
+                <div className={"flex flex-col grow overflow-auto min-h-0 " + PANEL_INNER_COLOR_CLASS}>
                     { children }
                 </div>
             </div>
@@ -337,10 +366,15 @@ function ObjectDetails(
     }
     else {
         return [
-            <Item name={name} value="" />,
+            <Item key={0} name={name} value="" />,
             ... isExpand ?
                 Object.keys(obj).map((key, index) =>
-                    <ObjectDetails key={index} name={key} obj={obj[key]} level={level + 1} />) :
+                    <ObjectDetails
+                        key={index + 1}
+                        name={key}
+                        obj={obj[key]}
+                        level={level + 1}
+                    />) :
                 []
         ];
     }

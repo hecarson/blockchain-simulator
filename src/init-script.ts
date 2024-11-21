@@ -30,5 +30,18 @@ export const initInitScript =
     "    [2],\n" +
     "    node1EventHandler,\n" +
     ");\n" +
+    "\n" +
+    "simulator.eventQueue.push({\n" +
+    "    time: 5,\n" +
+    "    dst: 1,\n" +
+    "    type: \"test\",\n" +
+    "    isBreakpoint: false,\n" +
+    "})\n" +
+    "simulator.eventQueue.push({\n" +
+    "    time: 7,\n" +
+    "    dst: 2,\n" +
+    "    type: \"test\",\n" +
+    "    isBreakpoint: true,\n" +
+    "})\n" +
     ""
 ;
