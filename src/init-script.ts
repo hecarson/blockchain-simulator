@@ -36,12 +36,12 @@ export const initInitScript =
     "    dst: 1,\n" +
     "    type: \"test\",\n" +
     "    isBreakpoint: false,\n" +
-    "})\n" +
+    "});\n" +
     "simulator.eventQueue.push({\n" +
     "    time: 7,\n" +
     "    dst: 2,\n" +
     "    type: \"test\",\n" +
     "    isBreakpoint: true,\n" +
-    "})\n" +
+    "});\n" +
     ""
 ;

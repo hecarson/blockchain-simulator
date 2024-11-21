@@ -7,11 +7,11 @@ import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 export class Simulator {
 
     /**
-     * Mapping of node IDs to node objects.
+     * Mapping of node IDs to node objects. Not intended for use by init scripts.
      */
     nodes: { [id: number]: SimulatorNode } = {}
     /**
-     * Event queue
+     * Event queue. Can be modified by init scripts to pre-add events.
      */
     eventQueue: MinPriorityQueue<SimulatorEvent>;
     /**
@@ -82,7 +82,7 @@ export class Simulator {
 
     /**
      * Executes the event at the front of the queue (lowest time) and pause execution.
-     * Returns whether execution was successful.
+     * Returns whether execution was successful. Not intended for init scripts.
      */
     stepEvent(): boolean {
         if (this.eventQueue.isEmpty()) {
@@ -105,7 +105,7 @@ export class Simulator {
     /**
      * Repeatedly executes events at the front of the queue, until a breakpoint event is hit,
      * a maximum number of events have been executed, or the queue is empty. Returns whether
-     * execution was successful.
+     * execution was successful. Not intended for init scripts.
      */
     continue(): boolean {
         const MAX_EVENTS_PER_CONTINUE = 1000;
@@ -190,13 +190,16 @@ export class SimulatorNode {
     }
 
     /**
-     * Creates an event that will be sent to this node after a time delay.
+     * Intended for use by init scripts. Creates an event that will be sent to this
+     * node after a time delay.
+     * 
      */
     createEvent(delay: number, type: string, msg?: object) {
     }
 
     /**
-     * Send a message to another node. This creates a message event.
+     * Intended for use by init scripts. Send a message to another node.
+     * This creates a message event.
      */
     sendMessage(dst: number, msg: object): void {
     }

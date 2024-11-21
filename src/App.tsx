@@ -89,7 +89,7 @@ function Menu(
     const initButtonClass = isShowInitWindow ? "active" : "";
 
     return (
-        <div className="flex flex-row justify-start items-center gap-4">
+        <div className="flex flex-row justify-start items-center gap-8">
             <button onClick={onClickInit} className={initButtonClass}>Init</button>
             <button onClick={onClickContinue}>Continue</button>
             <button onClick={onClickStepEvent}>Step Event</button>

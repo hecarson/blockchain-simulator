@@ -70,8 +70,8 @@ button.active, button:active {
     background-color: #a06060;
 }
 
-textarea {
-    background-color: #303038;
+input, textarea {
+    background-color: #404048;
 }
 
 /*
