@@ -107,6 +107,7 @@ function handleInitEvent(node) {
 
     // List of blocks, with initial block
     node.blockchain = [{
+        id: 1,
         proposer: -1,
         transactions: initialTransactions,
     }];
@@ -124,6 +125,9 @@ function handleInitEvent(node) {
 }
 
 function handleSelectValidatorEvent(node) {
+    // Clear known random values
+    node.validatorRandomValues = {};
+
     // Make a random value, save it, and broadcast it
     const randomValue = Math.floor(Math.random() * 100);
     node.validatorRandomValues[node.id] = randomValue;
