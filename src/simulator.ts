@@ -198,17 +198,31 @@ export class SimulatorNode {
     /**
      * Intended for use by init scripts. Creates an event that will be sent to this
      * node after a time delay.
-     * 
      */
-    createEvent(delay: number, type: string, msg?: object) {
-        
+    createEvent(delay: number, type: string, isBreakpoint: boolean, msg?: object) {
+        const event: SimulatorEvent = {
+            time: this.simulator.curTime + delay,
+            dst: this.id,
+            type: type,
+            msg: msg,
+            isBreakpoint: isBreakpoint,
+        };
+        this.simulator.eventQueue.push(event);
     }
 
     /**
      * Intended for use by init scripts. Send a message to another node.
      * This creates a message event.
      */
-    sendMessage(dst: number, msg: object): void {
+    sendMessage(dst: number, isBreakpoint: boolean, msg: object): void {
+        const event: SimulatorEvent = {
+            time: this.simulator.curTime + this.simulator.messageDelay,
+            dst: dst,
+            type: "msg",
+            msg: msg,
+            isBreakpoint: isBreakpoint,
+        };
+        this.simulator.eventQueue.push(event);
     }
 
 }
