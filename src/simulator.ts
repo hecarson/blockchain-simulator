@@ -6,9 +6,21 @@ import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 
 export class Simulator {
 
+    /**
+     * Mapping of node IDs to node objects.
+     */
     nodes: { [id: number]: SimulatorNode } = {}
+    /**
+     * Event queue
+     */
     eventQueue: MinPriorityQueue<SimulatorEvent>;
+    /**
+     * Current time of the simulator during event exeuction.
+     */
     curTime = 0;
+    /**
+     * Logger
+     */
     private tagLogger: TagLogger;
 
     /**
