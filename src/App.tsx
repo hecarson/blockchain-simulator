@@ -330,7 +330,9 @@ function NodeDetailsPanel(
 
     return (
         <Container>
-            <ObjectDetails name={`node${selectedNodeId}`} obj={filteredNode} level={0} />
+            <ObjectDetails name={`node${selectedNodeId}`} obj={filteredNode} level={0}
+                startExpand={true}
+            />
         </Container>
     );
 }
@@ -339,10 +341,10 @@ function NodeDetailsPanel(
  * Displays an object and recurses into nested objects.
  */
 function ObjectDetails(
-    { name, obj, level } :
-    { name: string, obj: any, level: number }
+    { name, obj, level, startExpand = false } :
+    { name: string, obj: any, level: number, startExpand: boolean }
 ) {
-    const [isExpand, setIsExpand] = useState(false);
+    const [isExpand, setIsExpand] = useState(startExpand);
 
     function Item({ name, value } : { name: string, value: string }) {
         const valueText = (!isExpand && typeof(obj) === "object") ?
@@ -374,6 +376,7 @@ function ObjectDetails(
                         name={key}
                         obj={obj[key]}
                         level={level + 1}
+                        startExpand={false}
                     />) :
                 []
         ];

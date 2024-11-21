@@ -15,7 +15,8 @@ function badEventHandler(node, event) {
 }
 
 function handleInit(node) {
-    logger.info(`init node ${node.id}`);
+    node.blockchain = [];
+    node.mempool = [];
 }
 
 const good1 = simulator.createNewNode(
