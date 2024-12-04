@@ -12,6 +12,7 @@ export default function App() {
     const [isShowInitWindow, setShowInitWindow] = useState(false);
 
     function runInitScript() {
+        log.length = 0 // Clear array
         simulator.init(initScript);
         forceRender();
     }
@@ -143,7 +144,7 @@ function SimulatorView(
             </div>
             <Canvas
                 className="w-[40%]"
-                render={(width, height) => renderNodes(width, height, simulator, setSelectedNodeId)}
+                render={(width, height) => renderNodes(width, height, simulator, selectedNodeId, setSelectedNodeId)}
             />
             <div className="flex flex-col w-[30%] gap-4 min-h-0">
                 <EventsPanel simulator={simulator} />
@@ -253,6 +254,8 @@ function EventsPanel({ simulator } : { simulator: Simulator }) {
 }
 
 function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => void }) {
+    const bottomRef = useRef<HTMLDivElement>(null);
+
     function onClickClear() {
         log.length = 0; // Clear array
         forceRender();
@@ -277,6 +280,13 @@ function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => v
         }
     }
 
+    useEffect(
+        () => {
+            bottomRef.current!.scrollIntoView({ behavior: "smooth" });
+            console.log("h");
+        },
+    );
+
     return (
         <div className={"flex flex-col p-4 h-1/2 gap-4 min-h-0 " + PANEL_COLOR_CLASS}>
             <div className="flex flex-row justify-between">
@@ -285,6 +295,7 @@ function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => v
             </div>
             <div className={"flex flex-col grow overflow-auto min-h-0 " + PANEL_INNER_COLOR_CLASS}>
                 { log.map(logEntryToElement) }
+                <div ref={bottomRef}></div>
             </div>
         </div>
     );
@@ -434,7 +445,7 @@ function useSimulator() {
 }
 
 function renderNodes(width: number, height: number, simulator: Simulator,
-    setSelectedNodeId: (id: number | null) => void,
+    selectedNodeId: number | null, setSelectedNodeId: (id: number | null) => void,
 ) {
     const shapes = [] as ReactNode[];
     let curShapeId = 0;
@@ -475,7 +486,6 @@ function renderNodes(width: number, height: number, simulator: Simulator,
         }
     }
 
-    // Other graphics
     for (const nodeId in simulator.nodes) {
         const node = simulator.nodes[nodeId];
 
@@ -490,6 +500,8 @@ function renderNodes(width: number, height: number, simulator: Simulator,
                 x={node.pos.x * width}
                 y={node.pos.y * height}
                 fill={node.color}
+                stroke={Number.parseInt(nodeId) === selectedNodeId ? "white" : ""}
+                strokeWidth={5}
                 radius={30}
                 onClick={onNodeClick}
             />
