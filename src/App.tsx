@@ -11,9 +11,9 @@ export default function App() {
     const [initScript, setInitScript] = useState(initInitScript);
     const [isShowInitWindow, setShowInitWindow] = useState(false);
 
-    function runInitScript() {
+    async function runInitScript() {
         log.length = 0 // Clear array
-        simulator.init(initScript);
+        await simulator.init(initScript);
         forceRender();
     }
 
@@ -77,13 +77,13 @@ function Menu(
         setShowInitWindow(!isShowInitWindow);
     }
 
-    function onClickContinue() {
-        simulator.continue();
+    async function onClickContinue() {
+        await simulator.continue();
         forceRender();
     }
 
-    function onClickStepEvent() {
-        simulator.stepEvent();
+    async function onClickStepEvent() {
+        await simulator.stepEvent();
         forceRender();
     }
 
@@ -283,7 +283,6 @@ function LogPanel({ log, forceRender } : { log: LogEntry[], forceRender: () => v
     useEffect(
         () => {
             bottomRef.current!.scrollIntoView({ behavior: "smooth" });
-            console.log("h");
         },
     );
 

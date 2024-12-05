@@ -2,6 +2,9 @@ import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 
 
 
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AsyncFunction
+const AsyncFunction: Function  = async function() {}.constructor;
+
 // Public code
 
 export class Simulator {
@@ -54,14 +57,14 @@ export class Simulator {
      * * simulator: Simulator
      * * logger: ILogger
      */
-    init(initScript: string): boolean {
+    async init(initScript: string): Promise<boolean> {
         this.nodes = {};
         this.eventQueue.clear();
         this.curTime = 0;
 
         try {
-            const initFunction = new Function("simulator", "logger", initScript);
-            initFunction(this, this.logger);
+            const initFunction = AsyncFunction("simulator", "logger", initScript);
+            await initFunction(this, this.logger);
         }
         catch (e) {
             console.log(e);
@@ -77,10 +80,10 @@ export class Simulator {
      * Intended for init scripts. Creates a new node in the simulator network.
      * Nodes should be created only with this function.
      */
-    createNewNode(id: number, name: string, pos: SimulatorNodePosition, color: string, peers: number[],
+    async createNewNode(id: number, name: string, pos: SimulatorNodePosition, color: string, peers: number[],
         handleEvent: ISimulatorEventHandler
-    ) {
-        const node = new SimulatorNode(this, id, name, pos, color, peers, handleEvent);
+    ): Promise<SimulatorNode> {
+        const node = await SimulatorNode.create(this, id, name, pos, color, peers, handleEvent);
         this.nodes[id] = node;
         return node;
     }
@@ -89,14 +92,14 @@ export class Simulator {
      * Executes the event at the front of the queue (lowest time) and pause execution.
      * Returns whether execution was successful. Not intended for init scripts.
      */
-    stepEvent(): boolean {
+    async stepEvent(): Promise<boolean> {
         if (this.eventQueue.isEmpty()) {
             this.logger.info(this.EMPTY_QUEUE_MSG);
             return true;
         }
 
         try {
-            this.executeNextEvent();
+            await this.executeNextEvent();
         }
         catch (e) {
             console.log(e);
@@ -112,7 +115,7 @@ export class Simulator {
      * a maximum number of events have been executed, or the queue is empty. Returns whether
      * execution was successful. Not intended for init scripts.
      */
-    continue(): boolean {
+    async continue(): Promise<boolean> {
         const MAX_EVENTS_PER_CONTINUE = 1000;
         let numEventsExecuted = 0;
 
@@ -132,7 +135,7 @@ export class Simulator {
                 if (event.type === "break" && numEventsExecuted > 0)
                     return true;
 
-                this.executeNextEvent();
+                await this.executeNextEvent();
                 numEventsExecuted++;
             }
             catch (e) {
@@ -143,14 +146,14 @@ export class Simulator {
         }
     }
 
-    private executeNextEvent() {
+    private async executeNextEvent() {
         const event = this.eventQueue.pop();
         // Do nothing for breakpoint events
         if (event.type === "break")
             return;
         const node = this.nodes[event.dst];
         this.curTime = event.time;
-        node.handleEvent(node, event);
+        await node.handleEvent(node, event);
     }
 
 }
@@ -184,6 +187,10 @@ export class SimulatorNode {
      * Simulator object that this node belongs to.
      */
     simulator: Simulator;
+    /**
+     * ECDSA key pair for signatures.
+     */
+    signingKeyPair: CryptoKeyPair | null = null;
 
     constructor(simulator: Simulator, id: number, name: string, pos: SimulatorNodePosition,
         color: string, peers: number[], handleEvent: ISimulatorEventHandler)
@@ -195,6 +202,19 @@ export class SimulatorNode {
         this.color = color;
         this.peers = peers;
         this.handleEvent = handleEvent;
+    }
+
+    /**
+     * Create a new node. Use this function to create a new node instead of the constructor.
+     */
+    static async create(simulator: Simulator, id: number, name: string, pos: SimulatorNodePosition,
+        color: string, peers: number[], handleEvent: ISimulatorEventHandler
+    ): Promise<SimulatorNode> {
+        const node = new SimulatorNode(simulator, id, name, pos, color, peers, handleEvent);
+        node.signingKeyPair = await crypto.subtle.generateKey(
+            {name: "ECDSA", namedCurve: "P-256"}, true, ["sign", "verify"]
+        );
+        return node;
     }
 
     /**
@@ -264,7 +284,7 @@ export interface ISimulatorLogger {
 }
 
 export interface ISimulatorEventHandler {
-    (node: SimulatorNode, event: SimulatorEvent): void;
+    (node: SimulatorNode, event: SimulatorEvent): Promise<void>;
 }
 
 export type SimulatorNodePosition = {
