@@ -187,6 +187,7 @@ async function handleSelectValidatorEvent(node) {
     // Clear data
     node.validatorValCommits = {};
     node.validatorValReveals = {};
+    node.validatorIdAcks = {};
     node.curValidatorId = null;
 
     // Make a random value commitment
@@ -330,7 +331,7 @@ async function handleBlockMsg(node, signedMsg) {
         nodeLogger.error("block has invalid signature");
         return;
     }
-    const block = signedMsg.msg;
+    const block = JSON.parse(JSON.stringify(signedMsg.msg)); // Copy block to not affect other nodes
 
     // Ignore if already known
     if (getBlock(node.blocktreeRoot, block.id) !== null)
