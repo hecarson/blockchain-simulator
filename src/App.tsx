@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom"
 import { ChangeEvent, PropsWithChildren, ReactNode, useEffect, useRef, useState } from "react";
 import { ISimulatorLogger, Simulator } from "./simulator";
-import { initInitScript } from "./init-script";
+//import { initInitScript } from "./init-script";
 import { Circle, Layer, Line, Stage, Text } from "react-konva";
 import { Text as KonvaText } from "konva/lib/shapes/Text";
 //import "./App.css"
 
 export default function App() {
     const { simulator, log, forceRender } = useSimulator();
-    const [initScript, setInitScript] = useState(initInitScript);
+    const [initScript, setInitScript] = useState("");
     const [isShowInitWindow, setShowInitWindow] = useState(false);
 
     async function runInitScript() {

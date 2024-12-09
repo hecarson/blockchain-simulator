@@ -183,7 +183,7 @@ export class SimulatorNode {
      */
     handleEvent: ISimulatorEventHandler;
     /**
-     * This is for internal use and not intended for init scripts.
+     * This is for internal use and not for init scripts.
      * Simulator object that this node belongs to.
      */
     simulator: Simulator;

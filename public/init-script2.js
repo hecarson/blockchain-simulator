@@ -8,24 +8,24 @@
 const EPOCH_INTERVAL = 50;
 const NUM_NODES = 4;
 
-const good1 = simulator.createNewNode(
+const good1 = await simulator.createNewNode(
     1, "good1", {x: 0.3, y: 0.5}, "teal", [2, 4],
-    (node, event) => nodeEventHandler(node, event, false),
+    async (node, event) => await nodeEventHandler(node, event, false),
 );
 
-const good2 = simulator.createNewNode(
+const good2 = await simulator.createNewNode(
     2, "good2", {x: 0.5, y: 0.5}, "teal", [1, 3],
-    (node, event) => nodeEventHandler(node, event, false),
+    async (node, event) => await nodeEventHandler(node, event, false),
 );
 
-const good3 = simulator.createNewNode(
+const good3 = await simulator.createNewNode(
     3, "good3", {x: 0.7, y: 0.5}, "teal", [2],
-    (node, event) => nodeEventHandler(node, event, false),
+    async (node, event) => await nodeEventHandler(node, event, false),
 );
 
-const good4 = simulator.createNewNode(
+const good4 = await simulator.createNewNode(
     4, "good4", { x: 0.5, y: 0.2 }, "teal", [1],
-    (node, event) => nodeEventHandler(node, event, false),
+    async (node, event) => await nodeEventHandler(node, event, false),
 );
 
 simulator.messageDelay = 1;
@@ -76,23 +76,23 @@ simulator.eventQueue.push({
 
 // Event handlers
 
-function nodeEventHandler(node, event, bad) {
+async function nodeEventHandler(node, event, bad) {
     if (event.type === "init") {
         handleInitEvent(node);
     }
     if (event.type === "msg") {
         if (event.msg.type === "transaction") {
-            handleTransactionMsg(node, event.msg);
+            await handleTransactionMsg(node, event.msg);
         }
         else if (event.msg.type === "validatorRandomValue") {
-            handleValidatorRandomValueMsg(node, event.msg);
+            await handleValidatorRandomValueMsg(node, event.msg);
         }
         else if (event.msg.type === "block") {
-            handleBlockMsg(node, event.msg);
+            await handleBlockMsg(node, event.msg);
         }
     }
     if (event.type === "selectValidator") {
-        handleSelectValidatorEvent(node);
+        await handleSelectValidatorEvent(node);
     }
 }
 
@@ -124,7 +124,7 @@ function handleInitEvent(node) {
     node.createEvent(EPOCH_INTERVAL, "selectValidator");
 }
 
-function handleSelectValidatorEvent(node) {
+async function handleSelectValidatorEvent(node) {
     // Clear known random values
     node.validatorRandomValues = {};
 
@@ -137,7 +137,7 @@ function handleSelectValidatorEvent(node) {
     node.createEvent(EPOCH_INTERVAL, "selectValidator");
 }
 
-function handleTransactionMsg(node, msg) {
+async function handleTransactionMsg(node, msg) {
     // Do nothing if transaction is already known
     if (msg.transaction.id in node.mempool)
         return;
@@ -152,7 +152,7 @@ function handleTransactionMsg(node, msg) {
     });
 }
 
-function handleValidatorRandomValueMsg(node, msg) {
+async function handleValidatorRandomValueMsg(node, msg) {
     // Do nothing if value is already known
     if (msg.src in node.validatorRandomValues) {
         return;
@@ -178,7 +178,7 @@ function handleValidatorRandomValueMsg(node, msg) {
     }
 }
 
-function proposeBlock(node) {
+async function proposeBlock(node) {
     const block = {
         id: node.blockchain[node.blockchain.length - 1].id + 1,
         proposer: node.id,
@@ -193,7 +193,7 @@ function proposeBlock(node) {
     });
 }
 
-function handleBlockMsg(node, msg) {
+async function handleBlockMsg(node, msg) {
     // Do nothing if block is already at head
     if (node.blockchain[node.blockchain.length - 1].id === msg.block.id) {
         return;
