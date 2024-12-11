@@ -1,4 +1,5 @@
 // Initial init script that is shown in the init window
+// Currently unused
 
 export const initInitScript =
     "function node1EventHandler(event) {\n" +
